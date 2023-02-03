@@ -145,7 +145,7 @@ class MyWatchFace : CanvasWatchFaceService() {
             mBlueberryBitmap =
                     BitmapFactory.decodeResource(resources, R.drawable.blueberry)
             mStrawberryBitmap =
-                BitmapFactory.decodeResource(resources, R.drawable.blueberry)
+                BitmapFactory.decodeResource(resources, R.drawable.strawberry)
 
             /* Extracts colors from background image to improve watchface style. */
             Palette.from(mBackgroundBitmap).generate {
@@ -195,10 +195,10 @@ class MyWatchFace : CanvasWatchFaceService() {
             }
 
             mTickAndCirclePaint = Paint().apply {
-                color = mWatchHandColor
+                color = Color.BLACK
                 strokeWidth = SECOND_TICK_STROKE_WIDTH
                 isAntiAlias = true
-                style = Paint.Style.STROKE
+                style = Paint.Style.FILL
                 setShadowLayer(
                     SHADOW_RADIUS, 0f, 0f, mWatchHandShadowColor
                 )
@@ -257,7 +257,6 @@ class MyWatchFace : CanvasWatchFaceService() {
                 mHourPaint.color = mWatchHandColor
                 mMinutePaint.color = mWatchHandColor
                 mSecondPaint.color = mWatchHandHighlightColor
-                mTickAndCirclePaint.color = mWatchHandColor
 
                 mHourPaint.isAntiAlias = true
                 mMinutePaint.isAntiAlias = true
@@ -429,48 +428,23 @@ class MyWatchFace : CanvasWatchFaceService() {
              */
             canvas.save()
 
-            canvas.rotate(hoursRotation, mCenterX, mCenterY)
-            canvas.drawLine(
-                mCenterX,
-                mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
-                mCenterX,
-                mCenterY - sHourHandLength,
-                mHourPaint
-            )
+            canvas.translate(mCenterX, mCenterY)
+            canvas.rotate(hoursRotation, 0f, 0f)
+            canvas.translate(0f, -sMinuteHandLength)
+            canvas.drawBitmap(mStrawberryBitmap, -mStrawberryBitmap.width/2f, -mStrawberryBitmap.height/2f, mBackgroundPaint)
 
-            canvas.rotate(minutesRotation - hoursRotation, mCenterX, mCenterY)
-            canvas.drawLine(
-                mCenterX,
-                mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
-                mCenterX,
-                mCenterY - sMinuteHandLength,
-                mMinutePaint
-            )
+            canvas.restore()
 
-            /*
-             * Ensure the "seconds" hand is drawn only when we are in interactive mode.
-             * Otherwise, we only update the watch face once a minute.
-             */
-            if (!mAmbient) {
-                canvas.rotate(secondsRotation - minutesRotation, mCenterX, mCenterY)
-                canvas.drawLine(
-                    mCenterX,
-                    mCenterY - CENTER_GAP_AND_CIRCLE_RADIUS,
-                    mCenterX,
-                    mCenterY - mSecondHandLength,
-                    mSecondPaint
-                )
-
-            }
-            canvas.drawCircle(
-                mCenterX,
-                mCenterY,
-                CENTER_GAP_AND_CIRCLE_RADIUS,
-                mTickAndCirclePaint
-            )
+            canvas.save()
+            canvas.translate(mCenterX, mCenterY)
+            canvas.rotate(minutesRotation, 0f, 0f)
+            canvas.translate(0f, -sMinuteHandLength)
+            canvas.drawBitmap(mBlueberryBitmap, -mBlueberryBitmap.width/2f, -mBlueberryBitmap.height/2f, mBackgroundPaint)
 
             /* Restore the canvas" original orientation. */
             canvas.restore()
+
+            canvas.drawCircle(mCenterX, mCenterY, CENTER_GAP_AND_CIRCLE_RADIUS, mTickAndCirclePaint)
         }
 
         override fun onVisibilityChanged(visible: Boolean) {
